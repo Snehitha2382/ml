@@ -1,62 +1,43 @@
-#Import MNIST dataset from Sklearn
-from sklearn.datasets import load_digits
-from sklearn.linear_model import SGDClassifier
+from sklearn.datasets import fetch_openml
+mnist=fetch_openml('mnist_784',version=1,cache=True)
+
+x,y=mnist["data"],mnist["target"]
+
+# Importing libraries
+import matplotlib
+import numpy as np
 import matplotlib.pyplot as plt
-%matplotlib inline
 
-#Load digits and check train (data) and test (target) data available
-mnist_datasets = load_digits()
-mnist_datasets.keys()
-
-#Copy data to training and target to test variable
-X_data, y_data  = mnist_datasets['data'], mnist_datasets['target']
-
-#Check X training data shape
-X_data.shape
-
-#Check y test data shape
-y_data.shape
-
-#Let's print first digit (if you want to print other digits, just array number) for our prediction
-first_digit = X_data[1]
-first_digit_image = first_digit.reshape(8, 8)
-plt.imshow(first_digit_image)
+some_digit = x.to_numpy()[26000]
+some_digit_image = some_digit.reshape(28,28)
+plt.imshow(some_digit_image,cmap=matplotlib.cm.binary,interpolation="nearest")
 plt.axis("off")
 plt.show()
 
-#Split training and test data
-X_train_data, X_test_data, y_train_data, y_test_data = X_data[:1600], X_data[1600:], y_data[:1600], y_data[1600:]
+x_train,x_test,y_train,y_test=x[:60000],x[60000:],y[:60000],y[60000:]
 
-#Check X training data shape
-X_train_data.shape
+import numpy as np
+y_train = y_train.astype(np.int8)
 
-#Check X test data shape
-X_test_data.shape
+y_train_4=(y_train==4)
+y_test_4=(y_test==4)
 
-#Check y training data shape
-y_train_data.shape
+from sklearn.linear_model import SGDClassifier
+sgd_clf=SGDClassifier(random_state=42)
 
-#Check y test data shape
-y_test_data.shape
+sgd_clf.fit(x_train,y_train_4)
 
-#The number 1 is a binay cllassifier,so let's change true for all  1 and false for all not 1 
-y_predict_digit = (y_train_data == 1)
-
-# Use Stochastic Gradient Descent(SGD) classifier for fit and prediction
-sgd_classifier = SGDClassifier(random_state=42)
-sgd_classifier.fit(X_train_data, y_predict_digit)
-
-#Predict using  Stochastic Gradient Descent(SGD) classifier
-sgd_classifier.predict([first_digit])
+sgd_clf.predict([some_digit])
 
 
-#Measuring Accuracy Using Cross-Validation
 from sklearn.model_selection import cross_val_score
 cross_val_score(sgd_clf, x_train, y_train_4, cv=3, scoring="accuracy")
 
 from sklearn.model_selection import cross_val_predict
 y_train_pred = cross_val_predict(sgd_clf, x_train, y_train_4, cv=3)
 
+
+# Confusion Matrix
 from sklearn.metrics import confusion_matrix
 confusion_matrix(y_train_4, y_train_pred)
 
