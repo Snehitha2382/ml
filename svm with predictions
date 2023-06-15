@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+dataset = pd.read_csv('iris.csv')
+dataset.head(5)
+
+x = dataset.iloc[:,:4].values
+y = dataset['species'].values
+
+from sklearn.model_selection import train_test_split
+x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.25,random_state=42)
+
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+x_train = sc.fit_transform(x_train)
+x_test = sc.transform(x_test)
+
+from sklearn.svm import SVC
+svclassifier = SVC(kernel='linear',random_state=0)
+svclassifier.fit(x_train,y_train)
+
+y_pred = svclassifier.predict(x_test)
+print(y_pred)
+
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test,y_pred)
+print(cm)
+
+a = cm.shape
+corrpred = 0
+falsepred = 0
+for row in ramge(a[0]):
+      for c in range(a[1]):
+             if row==c:
+                   corrpred += cm[row,c]
+              else:
+                    falsepred += cm[row,c]
+                    
+print('correct predictions : ',corrpred)
+print('False predictions : ', falsepred)
+print('Accuracy : ',(corrpred/(cm.sum())))
